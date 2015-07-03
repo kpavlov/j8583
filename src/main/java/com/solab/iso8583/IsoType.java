@@ -43,6 +43,8 @@ public enum IsoType {
 	LLLVAR(false, 0),
 	/** A date in format MMddHHmmss */
 	DATE10(false, 10),
+	/** A date in format yyMMddHHmmss */
+	DATE12(false, 12),
 	/** A date in format MMdd */
 	DATE4(false, 4),
 	/** A date in format yyMM */
@@ -85,7 +87,9 @@ public enum IsoType {
 	public String format(final Date value, final TimeZone tz) {
         final SimpleDateFormat sdf;
 		if (this == DATE10) {
-            sdf = new SimpleDateFormat("MMddHHmmss");
+			sdf = new SimpleDateFormat("MMddHHmmss");
+		} else if (this == DATE12) {
+            sdf = new SimpleDateFormat("yyMMddHHmmss");
 		} else if (this == DATE4) {
             sdf = new SimpleDateFormat("MMdd");
 		} else if (this == DATE_EXP) {
