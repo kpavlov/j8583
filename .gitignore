@@ -2,4 +2,6 @@ target
 .gradle
 build
 out
+*.ipr
+*.iml
 *.iws
