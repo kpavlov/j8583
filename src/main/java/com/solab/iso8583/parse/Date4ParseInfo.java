@@ -55,13 +55,8 @@ public class Date4ParseInfo extends DateTimeParseInfo {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		//Set the month in the date
-        if (forceStringDecoding) {
-            cal.set(Calendar.MONTH, Integer.parseInt(new String(buf, pos, 2, getCharacterEncoding()), 10)-1);
-            cal.set(Calendar.DATE, Integer.parseInt(new String(buf, pos+2, 2, getCharacterEncoding()), 10));
-        } else {
-            cal.set(Calendar.MONTH, ((buf[pos] - 48) * 10) + buf[pos + 1] - 49);
-            cal.set(Calendar.DATE, ((buf[pos + 2] - 48) * 10) + buf[pos + 3] - 48);
-        }
+		cal.set(Calendar.MONTH, parseTwoDigits(buf, pos) - 1);
+		cal.set(Calendar.DATE, parseTwoDigits(buf, pos + 2));
         if (tz != null) {
             cal.setTimeZone(tz);
         }
@@ -83,12 +78,12 @@ public class Date4ParseInfo extends DateTimeParseInfo {
 			tens[start++] = (((buf[i] & 0xf0) >> 4) * 10) + (buf[i] & 0x0f);
 		}
 		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.HOUR, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
 		//Set the month in the date
 		cal.set(Calendar.MONTH, tens[0] - 1);
 		cal.set(Calendar.DATE, tens[1]);
+        cal.set(Calendar.HOUR, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND,0);
         if (tz != null) {
             cal.setTimeZone(tz);
