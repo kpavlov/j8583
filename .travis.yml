@@ -2,4 +2,4 @@ language: java
 jdk:
   - oraclejdk7
 
-script: mvn integration-test
+script: gradle test
