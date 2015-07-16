@@ -362,12 +362,20 @@ public class IsoValue<T> implements Cloneable {
         } else if (binary) {
             //numeric types in binary are coded like this
             byte[] buf = null;
-            if (type == IsoType.NUMERIC) {
-                buf = new byte[(length / 2) + (length % 2)];
-            } else if (type == IsoType.AMOUNT) {
-                buf = new byte[6];
-            } else if (type == IsoType.DATE12 || type == IsoType.DATE10 || type == IsoType.DATE4 || type == IsoType.DATE_EXP || type == IsoType.TIME) {
-                buf = new byte[length / 2];
+            switch (type) {
+                case NUMERIC:
+                    buf = new byte[(length / 2) + (length % 2)];
+                    break;
+                case AMOUNT:
+                    buf = new byte[6];
+                    break;
+                case DATE12:
+                case DATE10:
+                case DATE4:
+                case DATE_EXP:
+                case TIME:
+                    buf = new byte[length / 2];
+                    break;
             }
             //Encode in BCD if it's one of these types
             if (buf != null) {
