@@ -28,14 +28,15 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * This class is used to parse fields of type DATE10.
+ * This class is used to parse fields of type {@link IsoType#DATE12}.
  *
- * @author Enrique Zamudio
+ * @author Konstantin Pavlov
+ * @since 1.10.3
  */
-public class Date10ParseInfo extends DateTimeParseInfo {
+public class Date12ParseInfo extends DateTimeParseInfo {
 
-    public Date10ParseInfo() {
-        super(IsoType.DATE10, 10);
+    public Date12ParseInfo() {
+        super(IsoType.DATE12, 12);
     }
 
     @Override
@@ -43,22 +44,29 @@ public class Date10ParseInfo extends DateTimeParseInfo {
                                     final int pos, final CustomField<T> custom)
             throws ParseException, UnsupportedEncodingException {
         if (pos < 0) {
-            throw new ParseException(String.format("Invalid DATE10 field %d position %d",
+            throw new ParseException(String.format("Invalid DATE12 field %d position %d",
                     field, pos), pos);
         }
-        if (pos + 10 > buf.length) {
-            throw new ParseException(String.format("Insufficient data for DATE10 field %d, pos %d",
+        if (pos + 12 > buf.length) {
+            throw new ParseException(String.format("Insufficient data for DATE12 field %d, pos %d",
                     field, pos), pos);
         }
         //A SimpleDateFormat in the case of dates won't help because of the missing data
         //we have to use the current date for reference and change what comes in the buffer
         Calendar cal = Calendar.getInstance();
         //Set the month in the date
-        cal.set(Calendar.MONTH, parseTwoDigits(buf, pos) - 1);
-        cal.set(Calendar.DATE, parseTwoDigits(buf, pos + 2));
-        cal.set(Calendar.HOUR_OF_DAY, parseTwoDigits(buf, pos + 4));
-        cal.set(Calendar.MINUTE, parseTwoDigits(buf, pos + 6));
-        cal.set(Calendar.SECOND, parseTwoDigits(buf, pos + 8));
+        int year = parseTwoDigits(buf, pos);
+        if (year < 50) {
+            year = 2000 + year;
+        } else {
+            year = 1900 + year;
+        }
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, parseTwoDigits(buf, pos + 2) - 1);
+        cal.set(Calendar.DATE, parseTwoDigits(buf, pos + 4));
+        cal.set(Calendar.HOUR_OF_DAY, parseTwoDigits(buf, pos + 6));
+        cal.set(Calendar.MINUTE, parseTwoDigits(buf, pos + 8));
+        cal.set(Calendar.SECOND, parseTwoDigits(buf, pos + 10));
         cal.set(Calendar.MILLISECOND, 0);
         if (tz != null) {
             cal.setTimeZone(tz);
@@ -72,14 +80,14 @@ public class Date10ParseInfo extends DateTimeParseInfo {
                                           final int pos, final CustomField<T> custom)
             throws ParseException {
         if (pos < 0) {
-            throw new ParseException(String.format("Invalid DATE10 field %d position %d",
+            throw new ParseException(String.format("Invalid DATE12 field %d position %d",
                     field, pos), pos);
         }
-        if (pos + 5 > buf.length) {
-            throw new ParseException(String.format("Insufficient data for DATE10 field %d, pos %d",
+        if (pos + 6 > buf.length) {
+            throw new ParseException(String.format("Insufficient data for DATE12 field %d, pos %d",
                     field, pos), pos);
         }
-        int[] tens = new int[5];
+        int[] tens = new int[6];
         int start = 0;
         for (int i = pos; i < pos + tens.length; i++) {
             tens[start++] = (((buf[i] & 0xf0) >> 4) * 10) + (buf[i] & 0x0f);
@@ -88,11 +96,18 @@ public class Date10ParseInfo extends DateTimeParseInfo {
         //A SimpleDateFormat in the case of dates won't help because of the missing data
         //we have to use the current date for reference and change what comes in the buffer
         //Set the month in the date
-        cal.set(Calendar.MONTH, tens[0] - 1);
-        cal.set(Calendar.DATE, tens[1]);
-        cal.set(Calendar.HOUR_OF_DAY, tens[2]);
-        cal.set(Calendar.MINUTE, tens[3]);
-        cal.set(Calendar.SECOND, tens[4]);
+        int year = tens[0];
+        if (year < 50) {
+            year = 2000 + year;
+        } else {
+            year = 1900 + year;
+        }
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, tens[1] - 1);
+        cal.set(Calendar.DATE, tens[2]);
+        cal.set(Calendar.HOUR_OF_DAY, tens[3]);
+        cal.set(Calendar.MINUTE, tens[4]);
+        cal.set(Calendar.SECOND, tens[5]);
         cal.set(Calendar.MILLISECOND, 0);
         if (tz != null) {
             cal.setTimeZone(tz);

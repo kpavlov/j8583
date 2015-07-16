@@ -2,6 +2,7 @@ package com.solab.iso8583.parse;
 
 import com.solab.iso8583.IsoType;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -40,4 +41,11 @@ public abstract class DateTimeParseInfo extends FieldParseInfo {
    		}
    	}
 
+    protected int parseTwoDigits(byte[] buf, int offset) throws UnsupportedEncodingException {
+        if (forceStringDecoding) {
+            return Integer.parseInt(new String(buf, offset, 2, getCharacterEncoding()), 10);
+        } else {
+            return ((buf[offset] - 48) * 10) + buf[offset + 1] - 48;
+        }
+    }
 }
