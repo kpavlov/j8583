@@ -82,23 +82,29 @@ public enum IsoType {
 		return length;
 	}
 
-	/** Formats a Date if the receiver is DATE10, DATE4, DATE_EXP or TIME; throws an exception
+	/** Formats a Date if the receiver is DATE10, DATE12, DATE4, DATE_EXP or TIME; throws an exception
 	 * otherwise. */
 	public String format(final Date value, final TimeZone tz) {
         final SimpleDateFormat sdf;
-		if (this == DATE10) {
-			sdf = new SimpleDateFormat("MMddHHmmss");
-		} else if (this == DATE12) {
-            sdf = new SimpleDateFormat("yyMMddHHmmss");
-		} else if (this == DATE4) {
-            sdf = new SimpleDateFormat("MMdd");
-		} else if (this == DATE_EXP) {
-            sdf = new SimpleDateFormat("yyMM");
-		} else if (this == TIME) {
-            sdf = new SimpleDateFormat("HHmmss");
-		} else {
-            throw new IllegalArgumentException("Cannot format date as " + this);
-        }
+		switch (this) {
+			case DATE10:
+				sdf = new SimpleDateFormat("MMddHHmmss");
+				break;
+			case DATE12:
+				sdf = new SimpleDateFormat("yyMMddHHmmss");
+				break;
+			case DATE4:
+				sdf = new SimpleDateFormat("MMdd");
+				break;
+			case DATE_EXP:
+				sdf = new SimpleDateFormat("yyMM");
+				break;
+			case TIME:
+				sdf = new SimpleDateFormat("HHmmss");
+				break;
+			default:
+				throw new IllegalArgumentException("Cannot format date as " + this);
+		}
         if (tz != null) {
             sdf.setTimeZone(tz);
         }
@@ -107,57 +113,64 @@ public enum IsoType {
 
 	/** Formats the string to the given length (length is only useful if type is ALPHA, NUMERIC or BINARY). */
 	public String format(String value, int length) {
-		if (this == ALPHA) {
-	    	if (value == null) {
-	    		value = "";
-	    	}
-	        if (value.length() > length) {
-	            return value.substring(0, length);
-	        } else if (value.length() == length) {
-	        	return value;
-	        } else {
-	        	return String.format(String.format("%%-%ds", length), value);
-	        }
-		} else if (this == LLVAR || this == LLLVAR || this == LLLLVAR) {
-			return value;
-		} else if (this == NUMERIC) {
-	        char[] c = new char[length];
-	        char[] x = value.toCharArray();
-	        if (x.length > length) {
-	        	throw new IllegalArgumentException("Numeric value is larger than intended length: " + value + " LEN " + length);
-	        }
-	        int lim = c.length - x.length;
-	        for (int i = 0; i < lim; i++) {
-	            c[i] = '0';
-	        }
-	        System.arraycopy(x, 0, c, lim, x.length);
-	        return new String(c);
-		} else if (this == AMOUNT) {
-			return IsoType.NUMERIC.format(new BigDecimal(value).movePointRight(2).longValue(), 12);
-		} else if (this == BINARY) {
+		switch (this) {
+			case ALPHA:
+				if (value == null) {
+					value = "";
+				}
+				if (value.length() > length) {
+					return value.substring(0, length);
+				} else if (value.length() == length) {
+					return value;
+				} else {
+					return String.format(String.format("%%-%ds", length), value);
+				}
+			case LLVAR:
+			case LLLVAR:
+			case LLLLVAR:
+				return value;
+			case NUMERIC: {
+				if (value.length() > length) {
+					throw new IllegalArgumentException("Numeric value is larger than intended length: " + value + " LEN " + length);
+				}
+				char[] x = value.toCharArray();
+				char[] c = new char[length];
+				int lim = c.length - x.length;
+				for (int i = 0; i < lim; i++) {
+					c[i] = '0';
+				}
+				System.arraycopy(x, 0, c, lim, x.length);
+				return new String(c);
+			}
+			case AMOUNT:
+				return IsoType.NUMERIC.format(new BigDecimal(value).movePointRight(2).longValue(), 12);
+			case BINARY: {
 
-	    	if (value == null) {
-	    		value = "";
-	    	}
-	        if (value.length() > length) {
-	            return value.substring(0, length);
-	        }
-	        char[] c = new char[length];
-	        int end = value.length();
-	        if (value.length() % 2 == 1) {
-	        	c[0] = '0';
-		        System.arraycopy(value.toCharArray(), 0, c, 1, value.length());
-		        end++;
-	        } else {
-		        System.arraycopy(value.toCharArray(), 0, c, 0, value.length());
-	        }
-	        for (int i = end; i < c.length; i++) {
-	            c[i] = '0';
-	        }
-	        return new String(c);
+				if (value == null) {
+					value = "";
+				}
+				if (value.length() > length) {
+					return value.substring(0, length);
+				}
+				char[] c = new char[length];
+				int end = value.length();
+				if (value.length() % 2 == 1) {
+					c[0] = '0';
+					System.arraycopy(value.toCharArray(), 0, c, 1, value.length());
+					end++;
+				} else {
+					System.arraycopy(value.toCharArray(), 0, c, 0, value.length());
+				}
+				for (int i = end; i < c.length; i++) {
+					c[i] = '0';
+				}
+				return new String(c);
 
-		} else if (this == LLBIN || this == LLLBIN || this == LLLLBIN) {
-			return value;
+			}
+			case LLBIN:
+			case LLLBIN:
+			case LLLLBIN:
+				return value;
 		}
 		throw new IllegalArgumentException("Cannot format String as " + this);
 	}
