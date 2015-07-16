@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.junit.*;
 
@@ -16,6 +17,21 @@ import com.solab.iso8583.IsoValue;
  * @author Enrique Zamudio
  */
 public class TestDates {
+
+	private static final TimeZone GMT_MINUS_SIX = TimeZone.getTimeZone("GMT-0600");
+
+	private static TimeZone systemTimezone;
+
+	@BeforeClass
+	public static void beforeClass() {
+		systemTimezone = TimeZone.getDefault();
+		TimeZone.setDefault(GMT_MINUS_SIX);
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		TimeZone.setDefault(systemTimezone);
+	}
 
 	@Test
 	public void testDate4FutureTolerance() throws ParseException, IOException {

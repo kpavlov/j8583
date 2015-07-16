@@ -1,6 +1,8 @@
 package com.solab.iso8583;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -18,6 +20,9 @@ public class IsoDateTypesFormatTest {
 
     private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
     private static final TimeZone GMT_PLUS_ONE = TimeZone.getTimeZone("GMT+0100");
+    private static final TimeZone GMT_MINUS_SIX = TimeZone.getTimeZone("GMT-0600");
+
+    private static TimeZone systemTimezone;
 
     @Parameterized.Parameters(name = "{index}: {0}: \"{1}\" @{2} -> {3}")
     public static Iterable<Object[]> data() {
@@ -54,8 +59,19 @@ public class IsoDateTypesFormatTest {
         this.timeZone = timeZone;
     }
 
+    @BeforeClass
+    public static void beforeClass() {
+        systemTimezone = TimeZone.getDefault();
+        TimeZone.setDefault(GMT_MINUS_SIX);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        TimeZone.setDefault(systemTimezone);
+    }
+
     @Test
     public void testFormat() {
-        Assert.assertThat(type.format(date, timeZone), equalTo(formettedValue));
+        Assert.assertThat(date.toString(), type.format(date, timeZone), equalTo(formettedValue));
     }
 }
