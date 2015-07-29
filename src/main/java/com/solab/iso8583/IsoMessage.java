@@ -51,7 +51,7 @@ public class IsoMessage {
      * This is where the values are stored.
      */
     @SuppressWarnings("rawtypes")
-    private IsoValue[] fields = new IsoValue[129];
+    private final IsoValue[] fields = new IsoValue[129];
     /**
      * Stores the optional ISO header.
      */
@@ -270,7 +270,7 @@ public class IsoMessage {
         if (value == null) {
             fields[index] = null;
         } else {
-            IsoValue<T> v = null;
+            final IsoValue<T> v;
             if (t.needsLength()) {
                 v = new IsoValue<>(t, value, length, encoder);
             } else {

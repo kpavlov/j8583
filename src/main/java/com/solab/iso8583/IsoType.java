@@ -177,19 +177,27 @@ public enum IsoType {
 
 	/** Formats the integer value as a NUMERIC, an AMOUNT, or a String. */
 	public String format(long value, int length) {
-		if (this == NUMERIC) {
-			String x = String.format(String.format("%%0%dd", length), value);
-	        if (x.length() > length) {
-	        	throw new IllegalArgumentException("Numeric value is larger than intended length: " + value + " LEN " + length);
-	        }
-	        return x;
-		} else if (this == ALPHA || this == LLVAR || this == LLLVAR || this == LLLLVAR) {
-			return format(Long.toString(value), length);
-		} else if (this == AMOUNT) {
-			return String.format("%010d00", value);
-		} else if (this == BINARY || this == LLBIN || this == LLLBIN || this == LLLLBIN) {
-			//TODO
-		}
+        switch (this) {
+            case NUMERIC:
+                String x = String.format(String.format("%%0%dd", length), value);
+                if (x.length() > length) {
+                    throw new IllegalArgumentException("Numeric value is larger than intended length: " + value + " LEN " + length);
+                }
+                return x;
+            case ALPHA:
+            case LLVAR:
+            case LLLVAR:
+            case LLLLVAR:
+                return format(Long.toString(value), length);
+            case AMOUNT:
+                return String.format("%010d00", value);
+            case BINARY:
+            case LLBIN:
+            case LLLBIN:
+            case LLLLBIN:
+                //TODO
+                break;
+        }
 		throw new IllegalArgumentException("Cannot format number as " + this);
 	}
 

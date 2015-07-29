@@ -264,6 +264,7 @@ public class IsoValue<T> implements Cloneable {
      * Returns a copy of the receiver that references the same value object.
      */
     @SuppressWarnings("unchecked")
+    @Override
     public IsoValue<T> clone() {
         try {
             return (IsoValue<T>) super.clone();
@@ -276,6 +277,7 @@ public class IsoValue<T> implements Cloneable {
      * Returns true of the other object is also an IsoValue and has the same type and length,
      * and if other.getValue().equals(getValue()) returns true.
      */
+    @Override
     public boolean equals(Object other) {
         if (other == null || !(other instanceof IsoValue<?>)) {
             return false;
